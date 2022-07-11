@@ -67,22 +67,22 @@ inputs:
   - bitbucket_baseurl:
     opts:
       title: "Bitbucket Base URL"
-      summary: Bitbucket server address; must have rest api installed
+      summary: Bitbucket server address (must have rest api installed)
       is_required: true
-  - bitbucket_project: Bitbucket Project Key (e.g RFM)
+  - bitbucket_project: Bitbucket Project Key
     opts:
       title: "Bitbucket Project Key"
-      summary: Will be used for parsing the jira ticket
+      summary: Used for fetching PR details (e.g RFM)
       is_required: true
   - bitbucket_repo: Bitbucket Repo Name
     opts:
       title: "Bitbucket Repository Name"
-      summary:  (e.g rakuten-fashion-ios)
+      summary: Used for fetching PR details (e.g my-repository-name)
       is_required: true
   - git_access_token: Git access token
     opts:
       title: "Git access token"
-      summary: Access token
+      summary: Read access token for fetching PR Details. Please generate on bitbucket
       is_sensitive: true
       is_required: true
   - jira_project_key: Jira Project Key
@@ -90,3 +90,7 @@ inputs:
       title: "Jira Project Key"
       summary: Will be used for parsing the jira ticket  (e.g RFMI)
       is_required: true
+  - pull_request_id: $PULL_REQUEST_ID
+    opts:
+      title: Pull request ID on Bitbucket
+      is_dont_change_value: true

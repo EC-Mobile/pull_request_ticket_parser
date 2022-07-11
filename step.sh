@@ -1,20 +1,6 @@
 #!/bin/bash
 set -ex
 
-echo "This is the value specified for the input 'example_step_input': ${example_step_input}"
-
-#
-# --- Export Environment Variables for other Steps:
-# You can export Environment Variables for other Steps with
-#  envman, which is automatically installed by `bitrise setup`.
-# A very simple example:
-envman add --key EXAMPLE_STEP_OUTPUT --value 'the value you want to share'
-# Envman can handle piped inputs, which is useful if the text you want to
-# share is complex and you don't want to deal with proper bash escaping:
-#  cat file_with_complex_input | envman add --KEY EXAMPLE_STEP_OUTPUT
-# You can find more usage examples on envman's GitHub page
-#  at: https://github.com/bitrise-io/envman
-
 #
 # --- Exit codes:
 # The exit code of your Step is very important. If you return
@@ -23,17 +9,29 @@ envman add --key EXAMPLE_STEP_OUTPUT --value 'the value you want to share'
 
 
 #GET PR ID
-latestCommitMessage=`git log -1 --pretty`
-prIdInitialRegex="Pull\srequest\s#[0-9]*:"
 
-prIdInitial=`echo $latestCommitMessage | grep $prIdInitialRegex -o`
-prId=`echo $prIdInitial | tr -dc [0-9]`
-
-
-if [ -z "$prId"]
+if [ -n "$PULL_REQUEST_ID" ]
 then
-   echo "Could not parse PR ID; most likely commit is not PR merge commit"
+   #$PULL_REQUEST_ID has value when triggered from PR Update/Open webhook
+   echo "Mode = PR Opened/Updated"
+   prId=$PULL_REQUEST_ID
+   mode="1"
+else
+   echo "Mode = PR Merged"
+   
+   latestCommitMessage=`git log -1 --pretty`
+   prIdInitialRegex="Pull\srequest\s#[0-9]*:"
 
+   prIdInitial=`echo $latestCommitMessage | { grep $prIdInitialRegex -o || true; }`
+   prId=`echo $prIdInitial | tr -dc [0-9]`
+   mode="2"
+fi
+
+
+if [ -z "$prId" ]
+then
+   echo "Could not parse PR ID; most likely commit is not PR merge commit or PR open/update"
+   exit 1
 else
 
   #GET JIRA TICKETS
@@ -50,25 +48,43 @@ else
 
   prTitle=`echo $prDetails | jq -r .title`
   prSourceBranch=`echo $prDetails | jq -r .fromRef.displayId`
+  prTargetBranch=`echo $prDetails | jq -r .toRef.displayId`
 
   #/diff and /commits have different behavior, but /commits are exactly what we see on bitbucket PR commits
   prDetailsDiff=`curl --request GET \
     --url "${url}/commits" \
-    --header "Authorization: Bearer ${token}" \
+    --header "Authorization: Bearer ${git_access_token}" \
     --header 'Accept: application/json'`
 
   includedCommitMessages=`echo $prDetailsDiff | jq -r .values[].message`
 
 
-  jiraTicketsFromTitle=`echo $prTitle | grep $ticketRegex -o`
-  jiraTicketsFromBranchName=`echo $prSourceBranch | grep $ticketRegex -o`
-  jiraTicketsFromCommits=`echo $includedCommitMessages | grep $ticketRegex -o`
+  jiraTicketsFromTitle=`echo $prTitle | { grep $ticketRegex -o || true; }`
+  jiraTicketsFromBranchName=`echo $prSourceBranch | { grep $ticketRegex -o || true; }`
+  jiraTicketsFromCommits=`echo $includedCommitMessages | { grep $ticketRegex -o || true; }`
 
-  echo $jiraTicketsFromTitle
-  echo $jiraTicketsFromBranchName
-  echo $jiraTicketsFromCommits
+
+  #set outputs
+
+  if [ -n "$jiraTicketsFromTitle" ]
+  then
+    envman add --key JIRA_TICKETS_FROM_TITLE --value $jiraTicketsFromTitle
+  fi
   
-  envman add --key JIRA_TICKETS_FROM_TITLE --value $jiraTicketsFromTitle
-  envman add --key JIRA_TICKETS_FROM_BRANCH_NAME --value jiraTicketsFromBranchName
-  envman add --key JIRA_TICKETS_FROM_COMMITS --value jiraTicketsFromCommits
+  if [ -n "$jiraTicketsFromBranchName" ]
+  then
+    envman add --key JIRA_TICKETS_FROM_BRANCH_NAME --value $jiraTicketsFromBranchName
+  fi
+  
+  if [ -n "$jiraTicketsFromCommits" ]
+  then
+    envman add --key JIRA_TICKETS_FROM_COMMITS --value $jiraTicketsFromCommits
+  fi
+  
+  envman add --key JIRA_PARSER_MODE --value $mode
+  envman add --key PR_TARGET_BRANCH --value $prTargetBranch
+  
 fi
+
+
+
