@@ -58,12 +58,19 @@ else
 
   includedCommitMessages=`echo $prDetailsDiff | jq -r .values[].message`
 
+  #parsing
 
   jiraTicketsFromTitle=`echo $prTitle | { grep $ticketRegex -o || true; }`
   jiraTicketsFromBranchName=`echo $prSourceBranch | { grep $ticketRegex -o || true; }`
   jiraTicketsFromCommits=`echo $includedCommitMessages | { grep $ticketRegex -o || true; }`
 
-
+  
+  #format output to be comma-separated values
+  jiraTicketsFromTitle=`echo "${jiraTicketsFromTitle// /,}"`
+  jiraTicketsFromBranchName=`echo "${jiraTicketsFromBranchName// /,}"`
+  jiraTicketsFromCommits=`echo "${jiraTicketsFromCommits// /,}"`
+  
+  
   #set outputs
 
   if [ -n "$jiraTicketsFromTitle" ]

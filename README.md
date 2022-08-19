@@ -29,7 +29,7 @@ Parses related Jira tickets for a Pull Request
     value can be: "1" or "2" or null
   
   
-       - PR opened/updated (i.e "1"
+       - PR opened/updated (i.e "1")
   
   
        - PR merged (i.e "2")
@@ -47,7 +47,7 @@ Parses related Jira tickets for a Pull Request
   
        - Single Value (e.g RFMI-1234)
   
-       - Multiple value [space delimited] (e.g RFMI-1244 RFMI-5589)
+       - Multiple value [comma delimited] (e.g RFMI-1244,RFMI-5589)
   
        - No value [null]
   
