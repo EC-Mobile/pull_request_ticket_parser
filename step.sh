@@ -66,9 +66,9 @@ else
 
   
   #format output to be comma-separated values
-  jiraTicketsFromTitle=`echo "${jiraTicketsFromTitle//\n/,}"`
-  jiraTicketsFromBranchName=`echo "${jiraTicketsFromBranchName// \n/,}"`
-  jiraTicketsFromCommits=`echo "${jiraTicketsFromCommits//\n/,}"`
+  jiraTicketsFromTitle=`echo "${jiraTicketsFromTitle//\\n/,}"`
+  jiraTicketsFromBranchName=`echo "${jiraTicketsFromBranchName//\\n/,}"`
+  jiraTicketsFromCommits=`echo "${jiraTicketsFromCommits//\\n/,}"`
   
   
   #set outputs
