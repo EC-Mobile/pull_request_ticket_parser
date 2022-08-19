@@ -68,17 +68,17 @@ else
 
   if [ -n "$jiraTicketsFromTitle" ]
   then
-    envman add --key JIRA_TICKETS_FROM_TITLE --value $jiraTicketsFromTitle
+    envman add --key JIRA_TICKETS_FROM_TITLE --value "$jiraTicketsFromTitle"
   fi
   
   if [ -n "$jiraTicketsFromBranchName" ]
   then
-    envman add --key JIRA_TICKETS_FROM_BRANCH_NAME --value $jiraTicketsFromBranchName
+    envman add --key JIRA_TICKETS_FROM_BRANCH_NAME --value "$jiraTicketsFromBranchName"
   fi
   
   if [ -n "$jiraTicketsFromCommits" ]
   then
-    envman add --key JIRA_TICKETS_FROM_COMMITS --value $jiraTicketsFromCommits
+    envman add --key JIRA_TICKETS_FROM_COMMITS --value "$jiraTicketsFromCommits"
   fi
   
   envman add --key JIRA_PARSER_MODE --value $mode
