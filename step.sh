@@ -38,6 +38,7 @@ else
 
   ticketRegex="${jira_project_key}-[0-9]*"
 
+  prLink="https://$bitbucket_baseurl/projects/$bitbucket_project/repos/rakuten-fashion-ios/pull-requests/$prId"
   url="https://$bitbucket_baseurl/rest/api/1.0/projects/$bitbucket_project/repos/$bitbucket_repo/pull-requests/$prId"
 
   #https://developer.atlassian.com/cloud/bitbucket/rest/api-group-pullrequests/#api-repositories-workspace-repo-slug-pullrequests-pull-request-id-get
@@ -102,6 +103,7 @@ else
   
   envman add --key JIRA_PARSER_MODE --value $mode
   envman add --key PR_TARGET_BRANCH --value $prTargetBranch
+  envman add --key PR_LINK --value $prLink
   
 fi
 
