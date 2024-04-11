@@ -50,6 +50,18 @@ else
   prSourceBranch=`echo $prDetails | jq -r .fromRef.displayId`
   prTargetBranch=`echo $prDetails | jq -r .toRef.displayId`
 
+  #checking if PR is marked work in progress
+  wipRegex="\[wip\]"
+  prWorkInProgress=`echo $prTitle | tr "[:upper:]" "[:lower:]" | { grep "$wipRegex" -o || true; }`
+  if [ -z $prWorkInProgress ]
+  then
+    echo "PR is ready to be reviewd."
+  else
+    echo "Found work in progress flag in Pr title: $prTitle"
+    mode="3"
+    echo "Set mode to: $mode"
+  fi
+
   #/diff and /commits have different behavior, but /commits are exactly what we see on bitbucket PR commits
   prDetailsDiff=`curl --request GET \
     --url "${url}/commits" \
